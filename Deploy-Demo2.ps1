@@ -40,6 +40,8 @@ $starttime = get-date
 $Date = Get-Date -Format yyyyMMdd
 $scriptDir = Split-Path -Path $MyInvocation.MyCommand.Definition -Parent
 
+$TemplateRootUriString = "https://raw.githubusercontent.com/pierreroman/LP4S1/master"
+$TemplateURI = New-Object System.Uri -ArgumentList @($TemplateRootUriString)
 
 
 #region Prep & signin
@@ -75,10 +77,12 @@ $domainToJoin = "tailwind.com"
 
 # Deploy domain
 #$FilePath = $PSScriptRoot
-$Template = $scriptDir + "\Storage-migration-demo\Domain.json"
+#$Template = $scriptDir + "\Storage-migration-demo\Domain.json"
 
+$Template = $TemplateURI.AbsoluteUri + "/LP4S1/Storage-migration-demo/Domain.json"
+$id=(Get-Random -Minimum 0 -Maximum 9999 ).ToString('0000')
+$DeploymentName = "dc"+ $date + "-" +$id
 
-$DeploymentName = "dc"
 
 New-AzureRmResourceGroupDeployment -Name $DeploymentName -ResourceGroupName $ResourceGroupName -TemplateUri $Template -TemplateParameterObject `
             @{ `
@@ -86,8 +90,10 @@ New-AzureRmResourceGroupDeployment -Name $DeploymentName -ResourceGroupName $Res
                     adminUsername   = $cred.UserName; `
                     adminPassword   = $cred.Password; `
                     domainName      = $domainToJoin; `
-                    dnsPrefix       = $tailwind; `    
+                    dnsPrefix       = $tailwind; `
             } -Force | out-null
+
+
 
 <#
 #region Deployment of VM from VMlist.CSV
