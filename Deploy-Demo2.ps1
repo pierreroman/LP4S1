@@ -79,7 +79,7 @@ $domainToJoin = "tailwind.com"
 #$FilePath = $PSScriptRoot
 #$Template = $scriptDir + "\Storage-migration-demo\Domain.json"
 
-$Template = $TemplateURI.AbsoluteUri + "/LP4S1/Storage-migration-demo/Domain.json"
+$Template = $TemplateURI.AbsoluteUri + "/Storage-migration-demo/Domain.json"
 $id=(Get-Random -Minimum 0 -Maximum 9999 ).ToString('0000')
 $DeploymentName = "dc"+ $date + "-" +$id
 
@@ -90,7 +90,7 @@ New-AzureRmResourceGroupDeployment -Name $DeploymentName -ResourceGroupName $Res
                     adminUsername   = $cred.UserName; `
                     adminPassword   = $cred.Password; `
                     domainName      = $domainToJoin; `
-                    dnsPrefix       = $tailwind; `
+                    dnsPrefix       = "tailwind"; `
             } -Force | out-null
 
 
