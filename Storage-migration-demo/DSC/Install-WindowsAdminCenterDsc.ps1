@@ -1,4 +1,4 @@
-Invoke-WebRequest -Uri 'https://gist.githubusercontent.com/PlagueHO/e8120e1cc01b447d084322eb2ad14c95/raw/2aff9e1a8d94cdb6f8a7409874a3bdbfcf234f8e/WindowsAdminCenterDscConfiguration.ps1' -OutFile 'WindowsAdminCenterDscConfiguration.ps1'
+Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/pierreroman/LP4S1/master/Storage-migration-demo/DSC/WindowsAdminCenterDscConfiguration.ps1' -OutFile 'WindowsAdminCenterDscConfiguration.ps1'
 Install-Module -Name PSDscResources
 . .\WindowsAdminCenterDscConfiguration.ps1
 WindowsAdminCenter
