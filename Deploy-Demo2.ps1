@@ -85,15 +85,20 @@ $DeploymentName = "dc"+ $date + "-" +$id
 
 
 New-AzureRmResourceGroupDeployment -Name $DeploymentName -ResourceGroupName $ResourceGroupName -TemplateUri $Template -TemplateParameterObject `
-            @{ `
-                    
+            @{ ` 
                     adminUsername   = $cred.UserName; `
                     adminPassword   = $cred.Password; `
                     domainName      = $domainToJoin; `
                     dnsPrefix       = "tailwind"; `
             } -Force | out-null
 
-
+Set-AzureRmVMCustomScriptExtension -Argument "-domainAdminName $domainAdminName -domainAdminPassword $domainAdminPassword" `
+-ResourceGroupName $resourceGroupName `
+-VMName $targetVMname `
+-Location $vmLocation `
+-FileUri $FileUri `
+-Run $nameOfTheScriptToRun `
+-Name $customScriptExtensionName
 
 <#
 #region Deployment of VM from VMlist.CSV
