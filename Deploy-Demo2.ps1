@@ -92,13 +92,16 @@ New-AzureRmResourceGroupDeployment -Name $DeploymentName -ResourceGroupName $Res
                     dnsPrefix       = "tailwind"; `
             } -Force | out-null
 
-Set-AzureRmVMCustomScriptExtension -Argument "-domainAdminName $domainAdminName -domainAdminPassword $domainAdminPassword" `
--ResourceGroupName $resourceGroupName `
--VMName $targetVMname `
--Location $vmLocation `
--FileUri $FileUri `
--Run $nameOfTheScriptToRun `
--Name $customScriptExtensionName
+
+$WACFileUri = $TemplateURI.AbsoluteUri + "/Storage-migration-demo/DSC/Install-WindowsAdminCenterDsc.ps1"
+
+Set-AzureRmVMCustomScriptExtension -Argument "-domainAdminName $cred.UserName -domainAdminPassword $cred.Password" `
+    -ResourceGroupName $ResourceGroupName `
+    -VMName "adVM" `
+    -Location $Location `
+    -FileUri $WACFileUri `
+    -Run "Install-WindowsAdminCenterDsc.ps1" `
+    -Name "InstallWAC"
 
 <#
 #region Deployment of VM from VMlist.CSV
