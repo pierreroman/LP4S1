@@ -54,7 +54,7 @@ $subscriptionId = "cd400f31-6f94-40ab-863a-673192a3c0d0"
 Select-AzureRmSubscription -SubscriptionID $subscriptionId | out-null
 
 # select Resource Group
-$ResourceGroupName = "LP4S1-Storage-Migration"
+$ResourceGroupName = "LP4S1-Storage-Migration2"
 #$ResourceGroupName = Read-Host -Prompt 'Input the resource group for your network'
 
 # select Location
@@ -109,7 +109,7 @@ foreach($nic in $nics)
     }
 }
 
-$vnet = Get-AzureRmVirtualNetwork -ResourceGroupName $ResourceGroupName -name 'Vnet-Igloo-POC'
+$vnet = Get-AzureRmVirtualNetwork -ResourceGroupName $ResourceGroupName -name 'MyVNET'
 $vnet.DhcpOptions.DnsServers = $IP 
 Set-AzureRmVirtualNetwork -VirtualNetwork $vnet | out-null
 
