@@ -20,25 +20,12 @@
                 "description": "The FQDN of the Active Directory Domain to be created"
             }
         },
-        "dnsPrefix": {
-            "type": "string",
-            "metadata": {
-                "description": "The DNS prefix for the public IP address used by the Load Balancer"
-            }
-        },
         "_artifactsLocation": {
             "type": "string",
             "metadata": {
                 "description": "The location of resources, such as templates and DSC modules, that the template depends on"
             },
             "defaultValue": "https://raw.githubusercontent.com/pierreroman/LP4S1/master/"
-        },
-        "_artifactsLocationSasToken": {
-            "type": "securestring",
-            "metadata": {
-                "description": "Auto-generated token to access _artifactsLocation"
-            },
-            "defaultValue": ""
         },
         "location": {
             "type": "string",
@@ -55,7 +42,7 @@
         "adNicIPAddress": "10.0.0.4",
         "adVMName": "adVM",
         "SubnetName": "Subnet",
-        "SubnetAddressPrefix": "10.0.0.0/24",
+        "SubnetAddressPrefix": "10.0.0.0/24"
     },
     "resources": [
         {
@@ -65,7 +52,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "[concat(parameters('_artifactsLocation'), '/nestedtemplates/vnet.json', parameters('_artifactsLocationSasToken'))]",
+                    "uri": "[concat(parameters('_artifactsLocation'), '/nestedtemplates/vnet.json')]",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
@@ -90,7 +77,7 @@
             "apiVersion": "2016-03-30",
             "location": "[parameters('location')]",
             "dependsOn": [
-                "Microsoft.Resources/deployments/VNet",
+                "Microsoft.Resources/deployments/VNet"
             ],
             "properties": {
                 "ipConfigurations": [
@@ -113,7 +100,7 @@
             "apiVersion": "2017-03-30",
             "location": "[parameters('location')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/networkInterfaces', variables('adNicName'))]",
+                "[resourceId('Microsoft.Network/networkInterfaces', variables('adNicName'))]"
             ],
             "properties": {
                 "hardwareProfile": {
@@ -175,7 +162,7 @@
                         "typeHandlerVersion": "2.19",
                         "autoUpgradeMinorVersion": true,
                         "settings": {
-                            "ModulesUrl": "[concat(parameters('_artifactsLocation'), '/DSC/CreateADPDC.zip', parameters('_artifactsLocationSasToken'))]",
+                            "ModulesUrl": "[concat(parameters('_artifactsLocation'), '/DSC/CreateADPDC.zip')]",
                             "ConfigurationFunction": "CreateADPDC.ps1\\CreateADPDC",
                             "Properties": {
                                 "DomainName": "[parameters('domainName')]",

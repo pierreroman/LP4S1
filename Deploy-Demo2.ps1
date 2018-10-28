@@ -89,7 +89,6 @@ New-AzureRmResourceGroupDeployment -Name $DeploymentName -ResourceGroupName $Res
                     adminUsername   = $cred.UserName; `
                     adminPassword   = $cred.Password; `
                     domainName      = $domainToJoin; `
-                    dnsPrefix       = "tailwind"; `
             } -Force | out-null
 
 
