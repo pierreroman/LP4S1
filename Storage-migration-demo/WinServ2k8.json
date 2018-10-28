@@ -48,7 +48,7 @@
       "nicName": "myVMNic",
       "subnetName": "Subnet",
       "virtualNetworkName": "MyVNET",
-      "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('subnetName'))]"
+      "subnetRef": "[resourceID('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('subnetName'))]"
     },
     "resources": [
       {
@@ -68,7 +68,6 @@
         "name": "[variables('nicName')]",
         "location": "[parameters('location')]",
         "dependsOn": [
-          "[resourceId('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]"
         ],
         "properties": {
           "ipConfigurations": [
