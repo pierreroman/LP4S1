@@ -61,13 +61,9 @@ $ResourceGroupName = "LP4S1-Storage-Migration"
 $Location = "eastus"
 #$Location = Read-Host -Prompt 'Input the Location for your network'
 
-# set location of template
-$ScriptPath = $MyInvocation.MyCommand.Path
-$ScriptDir  = Split-Path -Parent $ScriptPath
-
 # Define a credential object
 Write-Host "You Will now be asked for a UserName and Password that will be applied to the VMs that will be created";
-#$cred = Get-Credential 
+$cred = Get-Credential 
 
 $domainToJoin = "tailwind.com"
 
@@ -95,6 +91,29 @@ New-AzureRmResourceGroupDeployment -Name $DeploymentName -ResourceGroupName $Res
                     domainName      = $domainToJoin; `
             } -Force
 
+#region Update DNS with IP from DC set above
+
+Write-Output "Updating Vnet DNS to point to the newly create DC..."
+$vmname = "adVM"
+$vms = get-azurermvm
+$nics = get-azurermnetworkinterface | where VirtualMachine -NE $null #skip Nics with no VM
+
+foreach($nic in $nics)
+{
+    $vm = $vms | where-object -Property Id -EQ $nic.VirtualMachine.id
+    $prv =  $nic.IpConfigurations | select-object -ExpandProperty PrivateIpAddress
+    if ($($vm.Name) -eq $vmname)
+    {
+        $IP = $prv
+        break
+    }
+}
+
+$vnet = Get-AzureRmVirtualNetwork -ResourceGroupName $ResourceGroupName -name 'Vnet-Igloo-POC'
+$vnet.DhcpOptions.DnsServers = $IP 
+Set-AzureRmVirtualNetwork -VirtualNetwork $vnet | out-null
+
+#endregion
 
             
 # Deploy windows 2008 r2 machines
