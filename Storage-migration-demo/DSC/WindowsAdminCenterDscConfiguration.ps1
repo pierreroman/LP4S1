@@ -6,7 +6,7 @@ configuration WindowsAdminCenter
         $WacProductId = '{7019BE31-3389-46FB-A077-B813D53C1266}',
         
         [System.String]
-        $WacDownloadPath = 'http://download.microsoft.com/download/1/0/5/1059800B-F375-451C-B37E-758FFC7C8C8B/WindowsAdminCenter1804.25.msi',
+        $WacDownloadPath = 'http://download.microsoft.com/download/1/0/5/1059800B-F375-451C-B37E-758FFC7C8C8B/WindowsAdminCenter1809.msi',
 
         [System.Int16]
         $Port = 6516,

@@ -49,46 +49,15 @@
         }
     },
     "variables": {
-        "virtualNetworkName": "adVNET",
+        "virtualNetworkName": "MyVNET",
         "virtualNetworkAddressRange": "10.0.0.0/16",
-        "adLBFE": "LBFE",
-        "adLBBE": "LBBE",
-        "adRDPNAT": "adRDP",
         "adNicName": "adNic",
         "adNicIPAddress": "10.0.0.4",
         "adVMName": "adVM",
-        "adSubnetName": "adSubnet",
-        "adSubnetAddressPrefix": "10.0.0.0/24",
-        "publicIPAddressName": "adPublicIP",
-        "adAvailabilitySetName": "adAvailabiltySet",
-        "adLBName": "adLoadBalancer"
+        "SubnetName": "Subnet",
+        "SubnetAddressPrefix": "10.0.0.0/24",
     },
     "resources": [
-        {
-            "type": "Microsoft.Network/publicIPAddresses",
-            "name": "[variables('publicIPAddressName')]",
-            "apiVersion": "2016-03-30",
-            "location": "[parameters('location')]",
-            "properties": {
-                "publicIPAllocationMethod": "Dynamic",
-                "dnsSettings": {
-                    "domainNameLabel": "[parameters('dnsPrefix')]"
-                }
-            }
-        },
-        {
-            "apiVersion": "2017-03-30",
-            "type": "Microsoft.Compute/availabilitySets",
-            "location": "[parameters('location')]",
-            "name": "[variables('adAvailabilitySetName')]",
-            "properties": {
-                "PlatformUpdateDomainCount": 20,
-                "PlatformFaultDomainCount": 2
-            },
-            "sku": {
-                "name": "Aligned"
-            }
-        },
         {
             "type": "Microsoft.Resources/deployments",
             "name": "VNet",
@@ -107,52 +76,12 @@
                         "value": "[variables('virtualNetworkAddressRange')]"
                     },
                     "subnetName": {
-                        "value": "[variables('adSubnetName')]"
+                        "value": "[variables('SubnetName')]"
                     },
                     "subnetRange": {
-                        "value": "[variables('adSubnetAddressPrefix')]"
+                        "value": "[variables('SubnetAddressPrefix')]"
                     }
                 }
-            }
-        },
-        {
-            "type": "Microsoft.Network/loadBalancers",
-            "name": "[variables('adLBName')]",
-            "apiVersion": "2016-03-30",
-            "location": "[parameters('location')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressName'))]"
-            ],
-            "properties": {
-                "frontendIPConfigurations": [
-                    {
-                        "name": "[variables('adLBFE')]",
-                        "properties": {
-                            "publicIPAddress": {
-                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressName'))]"
-                            }
-                        }
-                    }
-                ],
-                "backendAddressPools": [
-                    {
-                        "name": "[variables('adLBBE')]"
-                    }
-                ],
-                "inboundNatRules": [
-                    {
-                        "name": "[variables('adRDPNAT')]",
-                        "properties": {
-                            "frontendIPConfiguration": {
-                                "id": "[resourceId('Microsoft.Network/loadBalancers/frontendIPConfigurations', variables('adLBName'), variables('adLBFE'))]"
-                            },
-                            "protocol": "tcp",
-                            "frontendPort": 3389,
-                            "backendPort": 3389,
-                            "enableFloatingIP": false
-                        }
-                    }
-                ]
             }
         },
         {
@@ -162,7 +91,6 @@
             "location": "[parameters('location')]",
             "dependsOn": [
                 "Microsoft.Resources/deployments/VNet",
-                "[resourceId('Microsoft.Network/loadBalancers', variables('adLBName'))]"
             ],
             "properties": {
                 "ipConfigurations": [
@@ -172,18 +100,8 @@
                             "privateIPAllocationMethod": "Static",
                             "privateIPAddress": "[variables('adNicIPAddress')]",
                             "subnet": {
-                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('adSubnetName'))]"
-                            },
-                            "loadBalancerBackendAddressPools": [
-                                {
-                                    "id": "[resourceId('Microsoft.Network/loadBalancers/backendAddressPools', variables('adLBName'), variables('adLBBE'))]"
-                                }
-                            ],
-                            "loadBalancerInboundNatRules": [
-                                {
-                                    "id": "[resourceId('Microsoft.Network/loadBalancers/inboundNatRules', variables('adLBName'), variables('adRDPNAT'))]"
-                                }
-                            ]
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('SubnetName'))]"
+                            }
                         }
                     }
                 ]
@@ -196,15 +114,10 @@
             "location": "[parameters('location')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Network/networkInterfaces', variables('adNicName'))]",
-                "[resourceId('Microsoft.Compute/availabilitySets', variables('adAvailabilitySetName'))]",
-                "[resourceId('Microsoft.Network/loadBalancers', variables('adLBName'))]"
             ],
             "properties": {
                 "hardwareProfile": {
                     "vmSize": "Standard_D2_v2"
-                },
-                "availabilitySet": {
-                    "id": "[resourceId('Microsoft.Compute/availabilitySets', variables('adAvailabilitySetName'))]"
                 },
                 "osProfile": {
                     "computerName": "[variables('adVMName')]",
@@ -302,10 +215,10 @@
                         "value": "[variables('virtualNetworkAddressRange')]"
                     },
                     "subnetName": {
-                        "value": "[variables('adSubnetName')]"
+                        "value": "[variables('SubnetName')]"
                     },
                     "subnetRange": {
-                        "value": "[variables('adSubnetAddressPrefix')]"
+                        "value": "[variables('SubnetAddressPrefix')]"
                     },
                     "DNSServerAddress": {
                         "value": [
