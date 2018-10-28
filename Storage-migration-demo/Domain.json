@@ -52,7 +52,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "[concat(parameters('_artifactsLocation'), 'Storage-migration-demo/nestedtemplates/vnet.json']",
+                    "uri": "[concat(parameters('_artifactsLocation'), 'Storage-migration-demo/nestedtemplates/vnet.json')]",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
@@ -162,7 +162,7 @@
                         "typeHandlerVersion": "2.19",
                         "autoUpgradeMinorVersion": true,
                         "settings": {
-                            "ModulesUrl": "[concat(parameters('_artifactsLocation'), '/DSC/CreateADPDC.zip')]",
+                            "ModulesUrl": "[concat(parameters('_artifactsLocation'), 'Storage-migration-demo/DSC/CreateADPDC.zip')]",
                             "ConfigurationFunction": "CreateADPDC.ps1\\CreateADPDC",
                             "Properties": {
                                 "DomainName": "[parameters('domainName')]",
@@ -191,7 +191,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "[concat(parameters('_artifactsLocation'), '/nestedtemplates/vnet-with-dns-server.json', parameters('_artifactsLocationSasToken'))]",
+                    "uri": "[concat(parameters('_artifactsLocation'), 'Storage-migration-demo/nestedtemplates/vnet-with-dns-server.json')]",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
