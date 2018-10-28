@@ -50,24 +50,17 @@ $AccountInfo = Login
 
 # select subscription
 $subscriptionId = "cd400f31-6f94-40ab-863a-673192a3c0d0"
-#$subscriptionId = Read-Host -Prompt 'Input your Subscription ID'
 Select-AzureRmSubscription -SubscriptionID $subscriptionId | out-null
 
 # select Resource Group
-$ResourceGroupName = "LP4S1-Storage-Migration"
-#$ResourceGroupName = Read-Host -Prompt 'Input the resource group for your network'
+$ResourceGroupName = "LP4S1-Storage-Migration2"
 
 # select Location
 $Location = "eastus"
-#$Location = Read-Host -Prompt 'Input the Location for your network'
-
-# set location of template
-$ScriptPath = $MyInvocation.MyCommand.Path
-$ScriptDir  = Split-Path -Parent $ScriptPath
 
 # Define a credential object
 Write-Host "You Will now be asked for a UserName and Password that will be applied to the VMs that will be created";
-#$cred = Get-Credential 
+$cred = Get-Credential 
 
 $domainToJoin = "tailwind.com"
 
@@ -109,24 +102,6 @@ for ($i = 0; $i -lt $vmcount; $i++) {
                         vmName    = $vmname; `
                         adminUsername   = $cred.UserName; `
                         adminPassword   = $cred.Password; `
-                        windowsOSVersion = "2008-R2-SP1"
+                        windowsOSVersion = "2008-R2-SP1" `
                } -Force
-
-
-
-    $Results = Set-AzureRMVMExtension -VMName $VMName -ResourceGroupName $ResourceGroupName `
-                   -Name "JoinAD" `
-                    -ExtensionType "JsonADDomainExtension" `
-                    -Publisher "Microsoft.Compute" `
-                    -TypeHandlerVersion "1.3" `
-                    -Location $Location.ToString() `
-                    -Settings @{ "Name" = $domainToJoin.ToString(); "User" = $cred.UserName.ToString(); "Restart" = "true"; "Options" = 3} `
-                    -ProtectedSettings @{"Password" = $cred.Password}
-        
-               if ($Results.StatusCode -eq "OK") {
-                   Write-Output "     Successfully joined domain '$domainToJoin.ToString()'..."
-                }
-                Else {
-                    Write-Output "     Failled to join domain '$domainToJoin.ToString()'..."
-                }
             }            
