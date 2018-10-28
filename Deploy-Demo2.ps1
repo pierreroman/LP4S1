@@ -38,8 +38,6 @@ $ErrorActionPreference = "Stop"
 $WarningPreference = "SilentlyContinue"
 $starttime = get-date
 $Date = Get-Date -Format yyyyMMdd
-$scriptDir = Split-Path -Path $MyInvocation.MyCommand.Definition -Parent
-
 $TemplateRootUriString = "https://raw.githubusercontent.com/pierreroman/LP4S1/master"
 $TemplateURI = New-Object System.Uri -ArgumentList @($TemplateRootUriString)
 
@@ -69,15 +67,21 @@ $ScriptDir  = Split-Path -Parent $ScriptPath
 
 # Define a credential object
 Write-Host "You Will now be asked for a UserName and Password that will be applied to the VMs that will be created";
-$cred = Get-Credential 
+#$cred = Get-Credential 
 
 $domainToJoin = "tailwind.com"
 
 #endregion
 
+# Create Resource Group
+
+Get-AzureRmResourceGroup -Name $ResourceGroupName -ErrorVariable notPresent -ErrorAction SilentlyContinue
+if ($notPresent)
+    {
+        New-AzureRmResourceGroup -Name $ResourceGroupName -Location EastUS -Force | out-null
+    }
+
 # Deploy domain
-#$FilePath = $PSScriptRoot
-#$Template = $scriptDir + "\Storage-migration-demo\Domain.json"
 
 $Template = $TemplateURI.AbsoluteUri + "/Storage-migration-demo/Domain.json"
 $id=(Get-Random -Minimum 0 -Maximum 9999 ).ToString('0000')
@@ -92,14 +96,19 @@ New-AzureRmResourceGroupDeployment -Name $DeploymentName -ResourceGroupName $Res
             } -Force | out-null
 
 
-<#
-$WACFileUri = $TemplateURI.AbsoluteUri + "/Storage-migration-demo/DSC/Install-WindowsAdminCenterDsc.ps1"
+# Deploy windows 2008 r2 machines
 
-Set-AzureRmVMCustomScriptExtension -Argument "-domainAdminName $cred.UserName -domainAdminPassword $cred.Password" `
-    -ResourceGroupName $ResourceGroupName `
-    -VMName "adVM" `
-    -Location $Location `
-    -FileUri $WACFileUri `
-    -Run "Install-WindowsAdminCenterDsc.ps1" `
-    -Name "InstallWAC"
-#>
+$Template = $TemplateURI.AbsoluteUri + "/Storage-migration-demo/WinServ2k8.json"
+$id=(Get-Random -Minimum 0 -Maximum 9999 ).ToString('0000')
+$DeploymentName = "windows2k8"+ $date + "-" +$id
+
+New-AzureRmResourceGroupDeployment -Name $DeploymentName -ResourceGroupName $ResourceGroupName -TemplateUri $Template -TemplateParameterObject `
+            @{ `
+                    vmNamePrefix    = "win2k8r2-"; `
+                    vmCount         =  "3"; `
+                    adminUsername   = $cred.UserName; `
+                    adminPassword   = $cred.Password; `
+                    windowsOSVersion = "2008-R2-SP1"
+            } -Force | out-null
+
+
