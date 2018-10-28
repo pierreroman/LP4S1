@@ -78,7 +78,7 @@ $domainToJoin = "tailwind.com"
 Get-AzureRmResourceGroup -Name $ResourceGroupName -ErrorVariable notPresent -ErrorAction SilentlyContinue
 if ($notPresent)
     {
-        New-AzureRmResourceGroup -Name $ResourceGroupName -Location EastUS -Force | out-null
+        New-AzureRmResourceGroup -Name $ResourceGroupName -Location EastUS -Force
     }
 
 # Deploy domain
@@ -93,7 +93,7 @@ New-AzureRmResourceGroupDeployment -Name $DeploymentName -ResourceGroupName $Res
                     adminUsername   = $cred.UserName; `
                     adminPassword   = $cred.Password; `
                     domainName      = $domainToJoin; `
-            } -Force | out-null
+            } -Force
 
 
 # Deploy windows 2008 r2 machines
@@ -101,30 +101,32 @@ New-AzureRmResourceGroupDeployment -Name $DeploymentName -ResourceGroupName $Res
 $Template = $TemplateURI.AbsoluteUri + "/Storage-migration-demo/WinServ2k8.json"
 $id=(Get-Random -Minimum 0 -Maximum 9999 ).ToString('0000')
 $DeploymentName = "windows2k8"+ $date + "-" +$id
+$vmcount = 3
+for ($i = 0; $i -lt $vmcount; $i++) {
+    $vmname = "win2k8r2-" + $i
+    New-AzureRmResourceGroupDeployment -Name $DeploymentName -ResourceGroupName $ResourceGroupName -TemplateUri $Template -TemplateParameterObject `
+                @{ `
+                        vmName    = $vmname; `
+                        adminUsername   = $cred.UserName; `
+                        adminPassword   = $cred.Password; `
+                        windowsOSVersion = "2008-R2-SP1"
+               } -Force
 
-New-AzureRmResourceGroupDeployment -Name $DeploymentName -ResourceGroupName $ResourceGroupName -TemplateUri $Template -TemplateParameterObject `
-            @{ `
-                    vmNamePrefix    = "win2k8r2-"; `
-                    vmCount         =  "3"; `
-                    adminUsername   = $cred.UserName; `
-                    adminPassword   = $cred.Password; `
-                    windowsOSVersion = "2008-R2-SP1"
-            } -Force | out-null
 
 
-
-$Results = Set-AzureRMVMExtension -VMName $VMName -ResourceGroupName $ResourceGroupName `
-                -Name "JoinAD" `
-                -ExtensionType "JsonADDomainExtension" `
-                -Publisher "Microsoft.Compute" `
-                -TypeHandlerVersion "1.3" `
-                -Location $Location.ToString() `
-                -Settings @{ "Name" = $domainToJoin.ToString(); "User" = $domainAdminUser.ToString(); "Restart" = "true"; "Options" = 3} `
-                -ProtectedSettings @{"Password" = $domPassword}
+    $Results = Set-AzureRMVMExtension -VMName $VMName -ResourceGroupName $ResourceGroupName `
+                   -Name "JoinAD" `
+                    -ExtensionType "JsonADDomainExtension" `
+                    -Publisher "Microsoft.Compute" `
+                    -TypeHandlerVersion "1.3" `
+                    -Location $Location.ToString() `
+                    -Settings @{ "Name" = $domainToJoin.ToString(); "User" = $cred.UserName.ToString(); "Restart" = "true"; "Options" = 3} `
+                    -ProtectedSettings @{"Password" = $cred.Password}
         
-            if ($Results.StatusCode -eq "OK") {
-                Write-Output "     Successfully joined domain '$domainToJoin.ToString()'..."
-            }
-            Else {
-                Write-Output "     Failled to join domain '$domainToJoin.ToString()'..."
-            }
+               if ($Results.StatusCode -eq "OK") {
+                   Write-Output "     Successfully joined domain '$domainToJoin.ToString()'..."
+                }
+                Else {
+                    Write-Output "     Failled to join domain '$domainToJoin.ToString()'..."
+                }
+            }            
