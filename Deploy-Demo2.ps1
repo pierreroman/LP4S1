@@ -112,3 +112,19 @@ New-AzureRmResourceGroupDeployment -Name $DeploymentName -ResourceGroupName $Res
             } -Force | out-null
 
 
+
+$Results = Set-AzureRMVMExtension -VMName $VMName -ResourceGroupName $ResourceGroupName `
+                -Name "JoinAD" `
+                -ExtensionType "JsonADDomainExtension" `
+                -Publisher "Microsoft.Compute" `
+                -TypeHandlerVersion "1.3" `
+                -Location $Location.ToString() `
+                -Settings @{ "Name" = $domainToJoin.ToString(); "User" = $domainAdminUser.ToString(); "Restart" = "true"; "Options" = 3} `
+                -ProtectedSettings @{"Password" = $domPassword}
+        
+            if ($Results.StatusCode -eq "OK") {
+                Write-Output "     Successfully joined domain '$domainToJoin.ToString()'..."
+            }
+            Else {
+                Write-Output "     Failled to join domain '$domainToJoin.ToString()'..."
+            }
