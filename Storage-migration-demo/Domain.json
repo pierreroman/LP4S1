@@ -52,7 +52,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "[concat(parameters('_artifactsLocation'), '/nestedtemplates/vnet.json')]",
+                    "uri": "[concat(parameters('_artifactsLocation'), 'Storage-migration-demo/nestedtemplates/vnet.json')]",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
