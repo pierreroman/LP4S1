@@ -54,7 +54,7 @@ $subscriptionId = "cd400f31-6f94-40ab-863a-673192a3c0d0"
 Select-AzureRmSubscription -SubscriptionID $subscriptionId | out-null
 
 # select Resource Group
-$ResourceGroupName = "LP4S1-Storage-Migration2"
+$ResourceGroupName = "LP4S1-Azure-File-sync"
 #$ResourceGroupName = Read-Host -Prompt 'Input the resource group for your network'
 
 # select Location
@@ -111,7 +111,7 @@ foreach($nic in $nics)
 
 $vnet = Get-AzureRmVirtualNetwork -ResourceGroupName $ResourceGroupName -name 'MyVNET'
 $vnet.DhcpOptions.DnsServers = $IP 
-Set-AzureRmVirtualNetwork -VirtualNetwork $vnet | out-null
+Set-AzureRmVirtualNetwork -VirtualNetwork $vnet
 
 #endregion
 
@@ -121,19 +121,48 @@ Set-AzureRmVirtualNetwork -VirtualNetwork $vnet | out-null
 $Template = $TemplateURI.AbsoluteUri + "/Storage-migration-demo/WinServ2k8.json"
 $id=(Get-Random -Minimum 0 -Maximum 9999 ).ToString('0000')
 $DeploymentName = "windows2k8"+ $date + "-" +$id
-$vmcount = 3
-for ($i = 0; $i -lt $vmcount; $i++) {
-    $vmname = "win2k8r2-" + $i
-    New-AzureRmResourceGroupDeployment -Name $DeploymentName -ResourceGroupName $ResourceGroupName -TemplateUri $Template -TemplateParameterObject `
-                @{ `
-                        vmName    = $vmname; `
-                        adminUsername   = $cred.UserName; `
-                        adminPassword   = $cred.Password; `
-                        windowsOSVersion = "2008-R2-SP1"
-               } -Force
+$vmname = "win2k8r2"
+
+New-AzureRmResourceGroupDeployment -Name $DeploymentName -ResourceGroupName $ResourceGroupName -TemplateUri $Template -TemplateParameterObject `
+    @{ `
+        vmName    = $vmname; `
+        adminUsername   = $cred.UserName; `
+        adminPassword   = $cred.Password; `
+        windowsOSVersion = "2008-R2-SP1"
+    } -Force
 
 
+# Deploy Windows Server 2019 machine
 
+$Template = $TemplateURI.AbsoluteUri + "/Storage-migration-demo/WinServ2019.json"
+$id=(Get-Random -Minimum 0 -Maximum 9999 ).ToString('0000')
+$DeploymentName = "windows2019" + "-" + $date + "-" +$id
+$vmname = "win2k8r2"
+
+New-AzureRmResourceGroupDeployment -Name $DeploymentName -ResourceGroupName $ResourceGroupName -TemplateUri $Template -TemplateParameterObject `
+    @{ `
+        vmName    = $vmname; `
+        adminUsername   = $cred.UserName; `
+        adminPassword   = $cred.Password; `
+        windowsOSVersion = "2019-datacenter"
+    } -Force
+
+# Deploy Jumpbox
+
+$Template = $TemplateURI.AbsoluteUri + "/Storage-migration-demo/jumpbox.json"
+$id=(Get-Random -Minimum 0 -Maximum 9999 ).ToString('0000')
+$DeploymentName = "jumpbox" + "-" + $date + "-" +$id
+$vmname = "jumpbox"
+
+New-AzureRmResourceGroupDeployment -Name $DeploymentName -ResourceGroupName $ResourceGroupName -TemplateUri $Template -TemplateParameterObject `
+    @{ `
+        vmName    = $vmname; `
+        adminUsername   = $cred.UserName; `
+        adminPassword   = $cred.Password; `
+    } -Force
+
+
+<#
     $Results = Set-AzureRMVMExtension -VMName $VMName -ResourceGroupName $ResourceGroupName `
                    -Name "JoinAD" `
                     -ExtensionType "JsonADDomainExtension" `
@@ -141,7 +170,7 @@ for ($i = 0; $i -lt $vmcount; $i++) {
                     -TypeHandlerVersion "1.3" `
                     -Location $Location.ToString() `
                     -Settings @{ "Name" = $domainToJoin.ToString(); "User" = $cred.UserName.ToString(); "Restart" = "true"; "Options" = 3} `
-                    -ProtectedSettings @{"Password" = $cred.Password}
+                    -ProtectedSettings @{"Password" = 'P@ssw0rd!234'}
         
                if ($Results.StatusCode -eq "OK") {
                    Write-Output "     Successfully joined domain '$domainToJoin.ToString()'..."
@@ -149,4 +178,5 @@ for ($i = 0; $i -lt $vmcount; $i++) {
                 Else {
                     Write-Output "     Failled to join domain '$domainToJoin.ToString()'..."
                 }
+#>
             }            
