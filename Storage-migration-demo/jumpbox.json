@@ -30,7 +30,7 @@
     },
     "variables": {
         "storageAccountName": "[concat(uniquestring(resourceGroup().id), 'sawinvm')]",
-        "nicName": "myVMNic",
+        "nicName": "[concat(parameters('vmName'),'Nic')]",
         "subnetName": "Subnet",
         "virtualNetworkName": "MyVNET",
         "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('subnetName'))]"
