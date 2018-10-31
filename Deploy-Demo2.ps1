@@ -54,8 +54,8 @@ $subscriptionId = "cd400f31-6f94-40ab-863a-673192a3c0d0"
 Select-AzureRmSubscription -SubscriptionID $subscriptionId | out-null
 
 # select Resource Group
-$ResourceGroupName = "LP4S1-Azure-File-sync"
-#$ResourceGroupName = Read-Host -Prompt 'Input the resource group for your network'
+#$ResourceGroupName = "LP4S1-Azure-File-sync"
+$ResourceGroupName = Read-Host -Prompt 'Input the resource group for your network'
 
 # select Location
 $Location = "eastus"
@@ -137,7 +137,7 @@ New-AzureRmResourceGroupDeployment -Name $DeploymentName -ResourceGroupName $Res
 $Template = $TemplateURI.AbsoluteUri + "/Storage-migration-demo/WinServ2019.json"
 $id=(Get-Random -Minimum 0 -Maximum 9999 ).ToString('0000')
 $DeploymentName = "windows2019" + "-" + $date + "-" +$id
-$vmname = "win2k8r2"
+$vmname = "windows2019"
 
 New-AzureRmResourceGroupDeployment -Name $DeploymentName -ResourceGroupName $ResourceGroupName -TemplateUri $Template -TemplateParameterObject `
     @{ `
@@ -179,4 +179,3 @@ New-AzureRmResourceGroupDeployment -Name $DeploymentName -ResourceGroupName $Res
                     Write-Output "     Failled to join domain '$domainToJoin.ToString()'..."
                 }
 #>
-            }            
